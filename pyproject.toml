@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "clip-creator"
+version = "0.1.0"
+description = "CLI worker for scraping YouTube Shorts hooks and stitching CTA videos."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+  "fastapi",
+  "httpx",
+  "pillow",
+  "psycopg[binary]>=3.2",
+  "pypdf>=5.0",
+  "python-dotenv",
+  "python-multipart",
+  "SQLAlchemy>=2.0",
+  "uvicorn[standard]",
+  "yt-dlp>=2025.1.15",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.0",
+]
+
+[project.scripts]
+clip-creator = "clip_creator.cli:main"
+clip-creator-web = "clip_creator.server:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+

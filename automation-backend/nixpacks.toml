@@ -1,0 +1,12 @@
+[phases.setup]
+nixPkgs = [
+  "python311",
+  "ffmpeg",
+  "glib",
+  "libGL",
+  "xorg.libXext",
+  "xorg.libXrender"
+]
+
+[phases.install]
+cmds = ["pip install --no-cache-dir -r requirements.txt"]

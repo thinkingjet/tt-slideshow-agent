@@ -1,0 +1,12 @@
+[build]
+nixpacksConfigPath = "nixpacks.toml"
+
+[deploy]
+restartPolicyType = "on_failure"
+startCommand = "./start_worker.sh"
+
+[services.worker]
+source = "."
+build.cmd = "echo 'Building Celery Worker service'"
+start.cmd = "celery -A celery_worker worker --loglevel=info --queues=video_processing --concurrency=1 --prefetch-multiplier=1"
+replicas = 10 

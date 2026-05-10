@@ -1,0 +1,6 @@
+green_screen_videos/
+__pycache__/
+*.pyc
+.DS_Store
+temp/
+public/generated/

@@ -1,0 +1,24 @@
+[2025-06-05 20:40:56] Starting latest video check
+[2025-06-05 20:40:56] Checking for latest green screen videos at https://creatorset.com/collections/free-green-screens?page=1&category=free-green-screens
+[2025-06-05 20:40:57] Found 10 latest videos to check
+[2025-06-05 20:40:57] Checking video 1/10: https://creatorset.com/collections/free-green-screens/products/mrbeast-makes-penguin-subscribe-meme-green-screen
+[2025-06-05 20:40:58] Already downloaded: MrBeast Makes Penguin Subscribe meme (Green Screen)
+[2025-06-05 20:40:59] Checking video 2/10: https://creatorset.com/collections/free-green-screens/products/gukesh-defeating-magnus-carlsen-meme-norway-chess-2025-green-screen
+[2025-06-05 20:40:59] Already downloaded: Gukesh defeating Magnus Carlsen meme - Norway Chess 2025 (Green Screen)
+[2025-06-05 20:41:00] Checking video 3/10: https://creatorset.com/collections/free-green-screens/products/khabib-saying-youre-in-my-world-to-speed-meme-green-screen
+[2025-06-05 20:41:01] Already downloaded: Khabib saying "You're in my world" to Speed meme (Green Screen)
+[2025-06-05 20:41:02] Checking video 4/10: https://creatorset.com/collections/free-green-screens/products/harrison-ford-saying-lets-shoot-this-piece-of-shit-meme-green-screen
+[2025-06-05 20:41:02] Already downloaded: Harrison Ford saying "Let's Shoot This Piece Of Shit!" meme (Green Screen)
+[2025-06-05 20:41:03] Checking video 5/10: https://creatorset.com/collections/free-green-screens/products/kangaroo-holding-boarding-pass-meme-green-screen
+[2025-06-05 20:41:04] Already downloaded: Kangaroo Holding Boarding Pass meme (Green Screen)
+[2025-06-05 20:41:05] Checking video 6/10: https://creatorset.com/collections/free-green-screens/products/rage-baiting-dog-meme-green-screen
+[2025-06-05 20:41:06] Already downloaded: Rage Baiting Dog meme (Green Screen)
+[2025-06-05 20:41:07] Checking video 7/10: https://creatorset.com/collections/free-green-screens/products/candice-are-you-still-with-us-meme-green-screen
+[2025-06-05 20:41:07] Already downloaded: Candice, Are You Still With Us? meme (Green Screen)
+[2025-06-05 20:41:08] Checking video 8/10: https://creatorset.com/collections/free-green-screens/products/knuckles-arguing-with-rouge-meme-sonic-x-green-screen
+[2025-06-05 20:41:09] Already downloaded: Knuckles Arguing With Rouge meme - Sonic X  (Green Screen)
+[2025-06-05 20:41:10] Checking video 9/10: https://creatorset.com/collections/free-green-screens/products/dont-rush-me-katie-meme-monsters-vs-aliens-green-screen
+[2025-06-05 20:41:10] Already downloaded: Don't Rush Me, Katie! meme - Monsters vs Aliens  (Green Screen)
+[2025-06-05 20:41:11] Checking video 10/10: https://creatorset.com/collections/free-green-screens/products/dana-white-saying-we-might-have-to-send-him-to-the-brain-clinic-meme-green-screen
+[2025-06-05 20:41:12] Already downloaded: Dana White saying "We Might Have to Send him to the Brain Clinic" meme (Green Screen)
+[2025-06-05 20:41:13] Check complete. 0 new videos downloaded, 10 already in collection

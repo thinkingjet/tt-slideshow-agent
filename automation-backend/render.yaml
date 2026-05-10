@@ -1,0 +1,39 @@
+services:
+  # Redis service
+  - type: redis
+    name: ai-ugc-redis
+    region: oregon
+    plan: free
+    maxmemoryPolicy: allkeys-lru
+
+  # API Server
+  - type: web
+    name: ai-ugc-api
+    env: docker
+    region: oregon
+    plan: free
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ai-ugc-redis
+          property: connectionString
+      - key: PORT
+        value: 10000
+    healthCheckPath: /health
+
+  # Background Worker (Production: 10 workers)
+  - type: worker
+    name: ai-ugc-worker
+    env: docker
+    region: oregon
+    plan: starter  # Upgraded for production scaling
+    dockerfilePath: ./Dockerfile
+    dockerCommand: celery -A celery_worker worker --loglevel=info --queues=video_processing --concurrency=1 --prefetch-multiplier=1
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: ai-ugc-redis
+          property: connectionString 

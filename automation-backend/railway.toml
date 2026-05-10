@@ -1,0 +1,19 @@
+[build]
+nixpacksConfigPath = "nixpacks.toml"
+
+[deploy]
+restartPolicyType = "on_failure"
+
+[services.api]
+source = "."
+build.cmd = "echo 'Building API service'"
+start.cmd = "python -m uvicorn task_queue_server:app --host 0.0.0.0 --port $PORT"
+
+[services.worker]
+source = "."
+build.cmd = "echo 'Building Worker service'"
+start.cmd = "celery -A celery_worker worker --loglevel=info --queues=video_processing --concurrency=1 --prefetch-multiplier=1"
+
+[services.redis]
+image = "redis:7-alpine"
+healthcheck = ["CMD", "redis-cli", "ping"] 

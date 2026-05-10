@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Clip Creator</title>
+    <link rel="stylesheet" href="/assets/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <div class="sidebar-brand">
+          <span class="logo-dot"></span>
+          <div>
+            <strong>Clip Creator</strong>
+            <p>Content tools</p>
+          </div>
+        </div>
+        <nav class="sidebar-nav" aria-label="Primary">
+          <button class="sidebar-tab active" type="button" data-view="product-research">
+            <span>01</span>
+            Product Research
+          </button>
+          <button class="sidebar-tab" type="button" data-view="cta-generator">
+            <span>02</span>
+            CTA Generator
+          </button>
+          <button class="sidebar-tab" type="button" data-view="slideshows">
+            <span>03</span>
+            Slideshows
+          </button>
+        </nav>
+        <div class="sidebar-status">
+          <div class="status-pill" id="research-status">Checking research engine...</div>
+          <div class="status-pill" id="postbridge-status">Checking PostBridge...</div>
+        </div>
+        <div class="sidebar-footer">
+          <form id="auth-form" class="auth-form">
+            <p class="eyebrow">Account</p>
+            <input name="email" type="email" placeholder="email@example.com" required />
+            <input name="password" type="password" placeholder="password" required minlength="6" />
+            <div class="auth-actions">
+              <button type="submit" data-auth-action="signin">Sign in</button>
+              <button class="secondary" type="button" id="signup-button">Sign up</button>
+            </div>
+          </form>
+          <div id="user-menu" class="user-menu hidden">
+            <div class="user-avatar" id="user-avatar">U</div>
+            <div class="user-meta">
+              <strong id="auth-user">Signed in</strong>
+              <span>Workspace account</span>
+            </div>
+            <button class="icon-button" type="button" id="signout-button" aria-label="Sign out">↗</button>
+          </div>
+          <div id="auth-message" class="message"></div>
+        </div>
+      </aside>
+
+      <main class="app-content">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="view-eyebrow">Product Research</p>
+            <h1 id="view-title">Turn product context into TikTok angles.</h1>
+          </div>
+        </header>
+
+        <section class="research-shell view active" data-view-panel="product-research">
+          <div class="research-step active" data-research-step="input">
+            <div class="research-input-grid">
+              <div class="research-copy">
+                <p class="eyebrow">Research</p>
+                <h2>Upload context. Get angles.</h2>
+                <p class="muted">
+                  Upload images, PDFs, text notes, reviews, or a product URL. The research engine analyzes the market and returns hooks,
+                  captions, CTAs, hashtags, proof points, and a simple posting plan.
+                </p>
+                <div class="status-row">
+                  <span class="mini-pill">Step 1: Product Info</span>
+                  <span class="mini-pill">TikTok ready</span>
+                </div>
+                <div class="saved-products">
+                  <div class="section-header small">
+                    <h3>Saved Products</h3>
+                    <button class="secondary small-button" id="refresh-products" type="button">Refresh</button>
+                  </div>
+                  <div id="saved-products-list" class="saved-products-list muted">Sign in to load saved products.</div>
+                </div>
+              </div>
+
+              <form id="research-form" class="research-form">
+                <div class="research-grid">
+                  <label>
+                    Product name
+                    <input name="product_name" placeholder="e.g. posture corrector, protein coffee, AI notes app" required />
+                  </label>
+                  <label>
+                    Product URL
+                    <input name="product_url" type="url" placeholder="https://..." />
+                  </label>
+                </div>
+                <label>
+                  Audience or niche
+                  <input name="audience" placeholder="e.g. gym beginners, ecommerce founders, new mums" />
+                </label>
+                <label>
+                  Product notes, offer, claims, reviews, or context
+                  <textarea name="product_context" rows="5" placeholder="Paste benefits, offer, price, customer objections, testimonials, brand voice, or any selling context..."></textarea>
+                </label>
+                <label>
+                  Upload product context
+                  <input name="files" type="file" multiple accept="image/*,application/pdf,text/plain,text/markdown,text/csv,.md,.markdown,.csv" />
+                  <span class="field-help" id="research-files-preview">Images, PDFs, text, markdown, or CSV. Max 8 files.</span>
+                </label>
+                <button type="submit" id="research-button">Generate TikTok Plan</button>
+                <div id="research-message" class="message"></div>
+              </form>
+            </div>
+          </div>
+
+          <div class="research-step" data-research-step="generating">
+            <div class="generating-screen">
+              <div class="loader-ring"></div>
+              <p class="eyebrow">Step 2: Generating</p>
+              <h2>Researching product angles.</h2>
+              <p class="muted">The research engine is analyzing the product, market, customer objections, hooks, captions, CTAs, and a posting plan.</p>
+              <div class="loading-lines">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="research-step" data-research-step="results">
+            <div class="results-layout">
+              <div class="readonly-panel">
+                <div class="section-header small">
+                  <div>
+                    <p class="eyebrow">Step 3: Generated Plan</p>
+                    <h2>Your product context</h2>
+                  </div>
+                  <button class="secondary small-button" id="new-research-button" type="button">New plan</button>
+                </div>
+                <div id="readonly-inputs" class="readonly-inputs"></div>
+              </div>
+              <div id="research-results" class="research-results"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="layout view" data-view-panel="cta-generator">
+          <section class="panel create-panel">
+            <h2>CTA Generator</h2>
+            <p class="muted">Pick a saved researched product. We’ll auto-write the CTA copy, generate the frames, apply the text overlay, then output a 10s CTA video with phonk audio.</p>
+            <form id="cta-form" class="stack">
+              <label>
+                Saved product
+                <select name="project_id" id="cta-project-select" required>
+                  <option value="">Select a saved product...</option>
+                </select>
+              </label>
+              <div class="muted" id="cta-products-count"></div>
+              <button class="secondary" type="button" id="cta-refresh-products">Refresh products</button>
+              <button type="submit" id="cta-generate-button">Generate CTA</button>
+            </form>
+            <div id="cta-message" class="message"></div>
+            <div id="cta-output" class="stack"></div>
+            <div class="section-header small" style="margin-top: 18px;">
+              <h3>Generated CTAs</h3>
+              <button class="secondary small-button" type="button" id="cta-refresh-gallery">Refresh</button>
+            </div>
+            <div id="cta-gallery" class="cta-gallery muted">Select a saved product to load generated CTAs.</div>
+          </section>
+        </section>
+
+        <section class="layout view" data-view-panel="slideshows">
+          <section class="panel create-panel">
+            <h2>Slideshows</h2>
+            <p class="muted">Select a saved product. We will generate a hook and a 6-slide TikTok slideshow using your research.</p>
+            <form id="slideshow-form" class="stack">
+              <label>
+                Saved product
+                <select name="project_id" id="slideshow-project-select" required>
+                  <option value="">Select a saved product...</option>
+                </select>
+              </label>
+              <div class="muted" id="slideshow-products-count"></div>
+              <button class="secondary" type="button" id="slideshow-refresh-products">Refresh products</button>
+              <button type="submit" id="slideshow-generate-button">Generate slideshow</button>
+            </form>
+            <div id="slideshow-message" class="message"></div>
+            <div id="slideshow-output" class="stack"></div>
+          </section>
+        </section>
+
+        <section class="layout view" data-view-panel="clip-creator">
+      <section class="panel create-panel">
+        <h2>Create Clips</h2>
+        <p class="muted">This creates mobile-ready 1080x1920 clips: first 3 seconds of each YouTube Short, then your CTA video with sound.</p>
+        <form id="job-form" class="stack">
+          <input type="hidden" name="product_name" value="" />
+          <input type="hidden" name="cta_hint_1" value="" />
+          <input type="hidden" name="cta_hint_2" value="" />
+          <label>
+            YouTube channel Shorts link
+            <input
+              name="source_url"
+              type="url"
+              placeholder="https://www.youtube.com/@RenderX0/shorts"
+              required
+            />
+          </label>
+          <label>
+            Generate CTA automatically
+            <input name="generate_cta" type="checkbox" checked />
+            <span class="field-help">Uses your Product Research to generate a 10s CTA.</span>
+          </label>
+          <label>
+            CTA video (optional)
+            <input name="cta" type="file" accept="video/mp4,video/quicktime" />
+            <span class="field-help" id="cta-preview">MP4 or MOV. If provided, it will be used when auto-generation is off.</span>
+          </label>
+          <div class="row">
+            <label>
+              How many Shorts to scrape
+              <select name="limit">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+                <option value="100">100</option>
+              </select>
+            </label>
+            <label>
+              Hook seconds
+              <input name="hook_seconds" type="number" min="1" max="10" step="0.5" value="3" />
+            </label>
+          </div>
+          <button type="submit" id="create-button">Create Clips</button>
+        </form>
+        <div id="job-message" class="message"></div>
+        <div class="how-it-works">
+          <div><strong>1</strong><span>Find recent Shorts</span></div>
+          <div><strong>2</strong><span>Download with sound</span></div>
+          <div><strong>3</strong><span>Stitch CTA and save clips</span></div>
+        </div>
+      </section>
+
+      <section class="panel clips-panel">
+        <div class="section-header">
+          <div>
+            <h2>Progress + Clips</h2>
+            <p class="muted">Watch batches process live, then preview, download, or schedule the finished clips.</p>
+          </div>
+          <button class="secondary" id="refresh-button">Refresh</button>
+        </div>
+        <div id="active-job" class="active-job"></div>
+        <div class="tabs">
+          <button class="tab active" data-filter="all">All</button>
+          <button class="tab" data-filter="completed">Ready</button>
+          <button class="tab" data-filter="processing">Processing</button>
+          <button class="tab" data-filter="failed">Failed</button>
+        </div>
+        <div id="jobs-list" class="jobs-list"></div>
+        <div id="clips-grid" class="clips-grid"></div>
+      </section>
+
+      <aside class="panel schedule-panel">
+        <h2>Schedule</h2>
+        <div class="stack">
+          <label>
+            Caption
+            <textarea id="caption" rows="4" placeholder="Write one caption for this batch..."></textarea>
+          </label>
+          <label>
+            First post time
+            <input id="start-at" type="datetime-local" />
+          </label>
+          <label>
+            Stagger interval, minutes
+            <input id="interval" type="number" min="0" value="60" />
+          </label>
+        </div>
+
+        <div class="accounts">
+          <div class="section-header small">
+            <h3>Accounts</h3>
+            <button class="secondary small-button" id="load-accounts">Load</button>
+          </div>
+          <div id="accounts-list" class="accounts-list muted">Add `POSTBRIDGE_API_KEY` to `.env` first.</div>
+        </div>
+
+        <button id="schedule-button">Schedule Selected Clips</button>
+        <div id="schedule-message" class="message"></div>
+
+        <div class="calendar-card">
+          <div class="section-header small">
+            <h3>Calendar</h3>
+            <button class="secondary small-button" id="refresh-calendar">Refresh</button>
+          </div>
+          <div id="calendar" class="calendar"></div>
+        </div>
+      </aside>
+        </section>
+      </main>
+    </div>
+
+    <script src="/assets/app.js"></script>
+  </body>
+</html>
+
