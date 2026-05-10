@@ -301,6 +301,7 @@ export async function getGeneratedSlideshows(): Promise<GeneratedSlideshow[]> {
 
 async function automationBackendFetch<T>(
   path: string,
+  accessToken: string,
   init: RequestInit = {},
 ): Promise<T> {
   if (!AUTOMATION_BACKEND_URL) {
@@ -308,10 +309,11 @@ async function automationBackendFetch<T>(
   }
 
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
-  const response = await fetch(`/api/automation-backend${normalizedPath}`, {
+  const response = await fetch(`${AUTOMATION_BACKEND_URL.replace(/\/$/, "")}${normalizedPath}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
+      Authorization: `Bearer ${accessToken}`,
       ...(init.headers || {}),
     },
   });
@@ -325,39 +327,45 @@ async function automationBackendFetch<T>(
   return payload as T;
 }
 
-export async function listAutomationBackendContext(): Promise<{
+export async function listAutomationBackendContext(accessToken: string): Promise<{
   researchProjects: ResearchProject[];
   products: SavedProduct[];
 }> {
-  return automationBackendFetch("/automation/products/context");
+  return automationBackendFetch("/automation/products/context", accessToken);
 }
 
 export async function getAutomationBackendGeneratedSlideshow(
   generatedSlideshowId: string,
+  accessToken: string,
 ): Promise<GeneratedSlideshow | null> {
   const response = await automationBackendFetch<{ generated_slideshow: GeneratedSlideshow }>(
     `/automation/product-slideshow/${generatedSlideshowId}`,
+    accessToken,
   );
   return response.generated_slideshow || null;
 }
 
 export async function getAutomationBackendBatchStatus(
   batchId: string,
+  accessToken: string,
 ): Promise<{ batch: AutomationBatchStatus; items: AutomationBatchItem[] }> {
   return automationBackendFetch<{ batch: AutomationBatchStatus; items: AutomationBatchItem[] }>(
     `/automation/product-slideshow-batches/${batchId}`,
+    accessToken,
   );
 }
 
-export async function listAutomationBackendTikTokAccounts(): Promise<TikTokAccount[]> {
+export async function listAutomationBackendTikTokAccounts(accessToken: string): Promise<TikTokAccount[]> {
   const response = await automationBackendFetch<{ data: TikTokAccount[] }>(
     "/automation/postbridge/tiktok-accounts",
+    accessToken,
   );
   return response.data || [];
 }
 
 export async function postAutomationBackendBatchToTikTok(
   batchId: string,
+  accessToken: string,
   input: {
     socialAccountIds: Array<string | number>;
     caption?: string;
@@ -366,7 +374,7 @@ export async function postAutomationBackendBatchToTikTok(
     intervalMinutes?: number;
   },
 ): Promise<{ success: boolean; batchId: string; posts: TikTokPostResult[] }> {
-  return automationBackendFetch(`/automation/product-slideshow-batches/${batchId}/post-to-tiktok`, {
+  return automationBackendFetch(`/automation/product-slideshow-batches/${batchId}/post-to-tiktok`, accessToken, {
     method: "POST",
     body: JSON.stringify({
       social_account_ids: input.socialAccountIds,
@@ -378,16 +386,18 @@ export async function postAutomationBackendBatchToTikTok(
   });
 }
 
-export async function listAutomationBackendPostBridgePosts(): Promise<PostBridgePost[]> {
+export async function listAutomationBackendPostBridgePosts(accessToken: string): Promise<PostBridgePost[]> {
   const response = await automationBackendFetch<{ data: PostBridgePost[] }>(
     "/automation/postbridge/posts",
+    accessToken,
   );
   return response.data || [];
 }
 
-export async function listAutomationBackendPostBridgeResults(): Promise<PostBridgePublishResult[]> {
+export async function listAutomationBackendPostBridgeResults(accessToken: string): Promise<PostBridgePublishResult[]> {
   const response = await automationBackendFetch<{ data: PostBridgePublishResult[]; warning?: string | null }>(
     "/automation/postbridge/post-results",
+    accessToken,
   );
   if (response.warning) {
     console.warn(response.warning);
@@ -395,17 +405,19 @@ export async function listAutomationBackendPostBridgeResults(): Promise<PostBrid
   return response.data || [];
 }
 
-export async function listAutomationBackendPostBridgeResultsWithWarning(): Promise<{
+export async function listAutomationBackendPostBridgeResultsWithWarning(accessToken: string): Promise<{
   data: PostBridgePublishResult[];
   warning?: string | null;
 }> {
   return automationBackendFetch<{ data: PostBridgePublishResult[]; warning?: string | null }>(
     "/automation/postbridge/post-results",
+    accessToken,
   );
 }
 
 export async function runBackendProductSlideshowAutomation(
   input: AutomationInput,
+  accessToken: string,
   onStage?: (stage: AutomationStage) => void,
 ): Promise<AutomationResult> {
   onStage?.("research");
@@ -435,6 +447,7 @@ export async function runBackendProductSlideshowAutomation(
 
   const response = await automationBackendFetch<BackendAutomationResponse>(
     "/automation/product-slideshow",
+    accessToken,
     {
       method: "POST",
       body: JSON.stringify(body),

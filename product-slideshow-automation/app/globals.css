@@ -361,6 +361,130 @@ textarea {
   gap: 20px;
 }
 
+.research-overview {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(220px, 0.85fr) minmax(220px, 0.85fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+.research-card,
+.angle-card {
+  border: 1px solid var(--border);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 18px;
+}
+
+.research-card-large {
+  background: linear-gradient(135deg, rgba(182, 243, 108, 0.15), rgba(255, 255, 255, 0.045));
+}
+
+.research-card h3,
+.section-title h3,
+.angle-card strong {
+  margin: 0;
+}
+
+.research-card h3 {
+  margin-top: 7px;
+  font-size: 1.35rem;
+}
+
+.research-card p,
+.angle-card p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.research-card ul {
+  display: grid;
+  gap: 8px;
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--muted);
+}
+
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.pill-row span {
+  border: 1px solid rgba(182, 243, 108, 0.28);
+  border-radius: 999px;
+  background: rgba(182, 243, 108, 0.1);
+  padding: 7px 10px;
+  color: var(--text);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.research-section,
+.slideshow-results {
+  display: grid;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.section-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.section-title span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
+.hook-rank-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.hook-rank-card {
+  display: grid;
+  grid-template-columns: 30px 1fr;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.045);
+  padding: 13px;
+}
+
+.hook-rank-card span {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--accent);
+  font-weight: 900;
+}
+
+.hook-rank-card p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.hook-rank-card.primary-hook {
+  border-color: rgba(182, 243, 108, 0.5);
+  background: rgba(182, 243, 108, 0.12);
+}
+
+.angle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
 .batch-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -660,7 +784,8 @@ textarea {
 
 @media (max-width: 900px) {
   .grid,
-  .result-grid {
+  .result-grid,
+  .research-overview {
     grid-template-columns: 1fr;
   }
 

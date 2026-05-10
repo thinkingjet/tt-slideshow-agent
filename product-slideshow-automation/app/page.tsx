@@ -125,6 +125,10 @@ function compactCaption(caption?: string | null): string {
   return cleaned.length > 72 ? `${cleaned.slice(0, 69)}...` : cleaned;
 }
 
+function researchPlan(project?: ResearchProject | null) {
+  return project?.data || project?.plan || {};
+}
+
 export default function AutomationPage() {
   const [pageMode, setPageMode] = useState<PageMode>("automation");
   const [sourceMode, setSourceMode] = useState<SourceMode>("new");
@@ -134,6 +138,7 @@ export default function AutomationPage() {
   const [productContext, setProductContext] = useState("");
   const [selectedResearchId, setSelectedResearchId] = useState("");
   const [selectedProductId, setSelectedProductId] = useState("");
+  const [backendAccessToken, setBackendAccessToken] = useState("");
   const [tiktokAccounts, setTikTokAccounts] = useState<TikTokAccount[]>([]);
   const [selectedTikTokAccountId, setSelectedTikTokAccountId] = useState("");
   const [tiktokCaption, setTikTokCaption] = useState("");
@@ -157,7 +162,7 @@ export default function AutomationPage() {
   const [batchStatus, setBatchStatus] = useState<AutomationBatchStatus | null>(null);
   const [batchItems, setBatchItems] = useState<AutomationBatchItem[]>([]);
 
-  const useAutomationBackend = Boolean(AUTOMATION_BACKEND_URL);
+  const useAutomationBackend = Boolean(AUTOMATION_BACKEND_URL && backendAccessToken.trim());
 
   const selectedResearchProject = useMemo(
     () => researchProjects.find((project) => project.id === selectedResearchId) || null,
@@ -180,7 +185,7 @@ export default function AutomationPage() {
       setIsLoadingLists(true);
       try {
         const context = useAutomationBackend
-          ? await listAutomationBackendContext()
+          ? await listAutomationBackendContext(backendAccessToken.trim())
           : null;
         const [loadedResearchProjects, loadedProducts] = context
           ? [context.researchProjects, context.products]
@@ -189,7 +194,7 @@ export default function AutomationPage() {
               listProducts(),
             ]);
         const loadedTikTokAccounts = useAutomationBackend
-          ? await listAutomationBackendTikTokAccounts().catch((accountError) => {
+          ? await listAutomationBackendTikTokAccounts(backendAccessToken.trim()).catch((accountError) => {
               setPostingMessage(accountError instanceof Error ? accountError.message : "Could not load TikTok accounts.");
               return [];
             })
@@ -215,7 +220,7 @@ export default function AutomationPage() {
     return () => {
       isMounted = false;
     };
-  }, [useAutomationBackend]);
+  }, [backendAccessToken, useAutomationBackend]);
 
   useEffect(() => {
     if (!useAutomationBackend || pageMode !== "calendar") return;
@@ -226,8 +231,8 @@ export default function AutomationPage() {
       setCalendarError("");
       setCalendarWarning("");
       try {
-        const posts = await listAutomationBackendPostBridgePosts();
-        const results = await listAutomationBackendPostBridgeResultsWithWarning();
+        const posts = await listAutomationBackendPostBridgePosts(backendAccessToken.trim());
+        const results = await listAutomationBackendPostBridgeResultsWithWarning(backendAccessToken.trim());
         if (!isMounted) return;
         setCalendarPosts(posts);
         setPostResults(results.data || []);
@@ -245,13 +250,13 @@ export default function AutomationPage() {
     return () => {
       isMounted = false;
     };
-  }, [pageMode, useAutomationBackend]);
+  }, [backendAccessToken, pageMode, useAutomationBackend]);
 
   async function refreshTikTokAccounts() {
     if (!useAutomationBackend) return;
     setPostingMessage("");
     try {
-      const accounts = await listAutomationBackendTikTokAccounts();
+      const accounts = await listAutomationBackendTikTokAccounts(backendAccessToken.trim());
       setTikTokAccounts(accounts);
       setSelectedTikTokAccountId((current) => current || String(accounts[0]?.id || ""));
       setPostingMessage(accounts.length ? `${accounts.length} TikTok account${accounts.length === 1 ? "" : "s"} connected.` : "No connected TikTok accounts found yet.");
@@ -271,7 +276,7 @@ export default function AutomationPage() {
     async function pollExport() {
       try {
         if (useAutomationBackend && batchId) {
-          const currentBatch = await getAutomationBackendBatchStatus(batchId);
+          const currentBatch = await getAutomationBackendBatchStatus(batchId, backendAccessToken.trim());
           if (!isMounted) return;
           setBatchStatus(currentBatch.batch);
           setBatchItems(currentBatch.items);
@@ -281,7 +286,7 @@ export default function AutomationPage() {
               setPostingStatus("posting");
               setPostingMessage("Posting completed exports to TikTok via PostBridge...");
               try {
-                const postResult = await postAutomationBackendBatchToTikTok(batchId, {
+                const postResult = await postAutomationBackendBatchToTikTok(batchId, backendAccessToken.trim(), {
                   socialAccountIds: [selectedTikTokAccountId],
                   caption: tiktokCaption.trim(),
                   scheduledStartAt: localDateTimeToIso(scheduleStartAt),
@@ -314,7 +319,7 @@ export default function AutomationPage() {
         }
 
         const current = useAutomationBackend
-          ? await getAutomationBackendGeneratedSlideshow(generatedSlideshowId)
+          ? await getAutomationBackendGeneratedSlideshow(generatedSlideshowId, backendAccessToken.trim())
           : (await getGeneratedSlideshows()).find((slideshow) => slideshow.id === generatedSlideshowId);
 
         if (!isMounted) return;
@@ -344,7 +349,7 @@ export default function AutomationPage() {
       isMounted = false;
       if (timeoutId) clearTimeout(timeoutId);
     };
-  }, [postingStatus, result?.batchId, result?.generatedSlideshowId, scheduleStartAt, selectedTikTokAccountId, tiktokCaption, useAutomationBackend]);
+  }, [backendAccessToken, postingStatus, result?.batchId, result?.generatedSlideshowId, scheduleStartAt, selectedTikTokAccountId, tiktokCaption, useAutomationBackend]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -386,6 +391,7 @@ export default function AutomationPage() {
       const automationResult = useAutomationBackend
         ? await runBackendProductSlideshowAutomation(
             automationInput,
+            backendAccessToken.trim(),
             (stage) => setSteps((currentSteps) => setActiveStep(currentSteps, stage)),
           )
         : await runProductSlideshowAutomation(
@@ -420,6 +426,12 @@ export default function AutomationPage() {
       })
     : returnedBatchItems;
   const isBatchRun = visibleBatchItems.length > 1;
+  const resultResearchPlan = researchPlan(result?.researchProject);
+  const resultProduct = resultResearchPlan.product || {};
+  const researchProductName = result?.researchProject.product_name || resultProduct.name || "Product research";
+  const researchSummary = resultProduct.summary || resultProduct.positioning || result?.researchProject.product_context || "";
+  const researchAngles = resultResearchPlan.contentAngles || [];
+  const researchInsights = resultResearchPlan.marketInsights || [];
   const sortedCalendarPosts = [...calendarPosts].sort((a, b) => {
     const left = new Date(postDate(a)).getTime() || 0;
     const right = new Date(postDate(b)).getTime() || 0;
@@ -475,8 +487,8 @@ export default function AutomationPage() {
                 setCalendarError("");
                 setCalendarWarning("");
                 try {
-                  const posts = await listAutomationBackendPostBridgePosts();
-                  const results = await listAutomationBackendPostBridgeResultsWithWarning();
+                  const posts = await listAutomationBackendPostBridgePosts(backendAccessToken.trim());
+                  const results = await listAutomationBackendPostBridgeResultsWithWarning(backendAccessToken.trim());
                   setCalendarPosts(posts);
                   setPostResults(results.data || []);
                   setCalendarWarning(results.warning || "");
@@ -492,7 +504,7 @@ export default function AutomationPage() {
           </div>
 
           {!useAutomationBackend ? (
-            <div className="empty-viewer">Configure the automation backend env vars first so PostBridge posts can load.</div>
+            <div className="empty-viewer">Paste your Supabase access token first so the automation backend can load PostBridge posts.</div>
           ) : calendarError ? (
             <div className="error">{calendarError}</div>
           ) : isCalendarLoading ? (
@@ -559,6 +571,14 @@ export default function AutomationPage() {
             <div className="backend-card">
               <strong>Railway automation backend configured</strong>
               <p>{AUTOMATION_BACKEND_URL}</p>
+              <label>
+                Supabase access token
+                <textarea
+                  value={backendAccessToken}
+                  onChange={(event) => setBackendAccessToken(event.target.value)}
+                  placeholder="Paste a Supabase access token to run the full workflow on Railway. Leave blank to use local ai-ugc proxy mode."
+                />
+              </label>
               {useAutomationBackend ? (
                 <div className="posting-card">
                   <strong>TikTok posting</strong>
@@ -718,12 +738,10 @@ export default function AutomationPage() {
         <section className="panel result-panel">
           <div className="result-header">
             <div>
-              <div className="eyebrow">Selected hook</div>
-              <h2>{result.selectedHook}</h2>
+              <div className="eyebrow">Research first</div>
+              <h2>{researchProductName}</h2>
               <p>
-                Product: {result.researchProject.product_name || result.researchProject.data?.product?.name || "Unknown"}.
-                Background collection: {result.selectedCollection.name}.
-                {result.slideshowCount ? ` Creating ${result.slideshowCount} slideshow exports.` : ""}
+                The automation uses this research to choose hooks, create slideshow variants, export them, and schedule posts.
               </p>
             </div>
             <div className="actions">
@@ -737,6 +755,93 @@ export default function AutomationPage() {
               ) : null}
             </div>
           </div>
+
+          <div className="research-overview">
+            <article className="research-card research-card-large">
+              <div className="eyebrow">Product read</div>
+              <h3>{researchProductName}</h3>
+              <p>{researchSummary || "Research is ready. The strongest hooks and content angles are below."}</p>
+              {resultProduct.targetCustomers?.length ? (
+                <div className="pill-row">
+                  {resultProduct.targetCustomers.slice(0, 4).map((customer) => (
+                    <span key={customer}>{customer}</span>
+                  ))}
+                </div>
+              ) : null}
+            </article>
+
+            <article className="research-card">
+              <div className="eyebrow">Buying triggers</div>
+              {resultProduct.buyingTriggers?.length ? (
+                <ul>
+                  {resultProduct.buyingTriggers.slice(0, 4).map((trigger) => (
+                    <li key={trigger}>{trigger}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{researchInsights[0] || "No buying triggers returned."}</p>
+              )}
+            </article>
+
+            <article className="research-card">
+              <div className="eyebrow">Objections</div>
+              {resultProduct.objections?.length ? (
+                <ul>
+                  {resultProduct.objections.slice(0, 4).map((objection) => (
+                    <li key={objection}>{objection}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>{researchInsights[1] || "No objections returned."}</p>
+              )}
+            </article>
+          </div>
+
+          <div className="research-section">
+            <div className="section-title">
+              <div>
+                <div className="eyebrow">Top hooks from research</div>
+                <h3>These hooks drive the slideshow batch</h3>
+              </div>
+              <span>{result.rankedHooks.length} ranked hooks</span>
+            </div>
+            <div className="hook-rank-grid">
+              {result.rankedHooks.slice(0, 7).map((hook, index) => (
+                <div className={`hook-rank-card ${index === 0 ? "primary-hook" : ""}`} key={`${hook}-${index}`}>
+                  <span>{index + 1}</span>
+                  <p>{hook}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {researchAngles.length ? (
+            <div className="research-section">
+              <div className="section-title">
+                <div>
+                  <div className="eyebrow">Content angles</div>
+                  <h3>What the AI found before generating</h3>
+                </div>
+              </div>
+              <div className="angle-grid">
+                {researchAngles.slice(0, 3).map((angle, index) => (
+                  <article className="angle-card" key={`${angle.title || "angle"}-${index}`}>
+                    <strong>{angle.title || `Angle ${index + 1}`}</strong>
+                    <p>{angle.insight || angle.whyItWorks || angle.talkingPoints?.[0] || "Research angle selected for slideshow generation."}</p>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          <div className="slideshow-results">
+            <div className="section-title">
+              <div>
+                <div className="eyebrow">Generated slideshows</div>
+                <h3>{result.slideshowCount ? `${result.slideshowCount} slideshow exports` : "Slideshow export"}</h3>
+              </div>
+              <span>Backgrounds: {result.selectedCollection.name}</span>
+            </div>
 
           {isBatchRun ? (
             <div className="batch-grid">
@@ -774,13 +879,11 @@ export default function AutomationPage() {
           {!isBatchRun ? (
           <div className="result-grid">
             <div className="hook-list">
-              <h3>Ranked hooks</h3>
-              {result.rankedHooks.slice(0, 5).map((hook, index) => (
-                <div className="hook-row" key={hook}>
-                  <span>{index + 1}</span>
-                  <p>{hook}</p>
-                </div>
-              ))}
+              <h3>Selected hook</h3>
+              <div className="hook-row">
+                <span>1</span>
+                <p>{result.selectedHook}</p>
+              </div>
             </div>
 
             <div className="viewer">
@@ -802,6 +905,7 @@ export default function AutomationPage() {
             </div>
           </div>
           ) : null}
+          </div>
         </section>
       ) : null}
       </>

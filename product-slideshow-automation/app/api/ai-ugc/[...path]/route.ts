@@ -6,35 +6,26 @@ type RouteContext = {
   }>;
 };
 
-function getAutomationBackendBaseUrl(): string {
-  const baseUrl = process.env.AUTOMATION_BACKEND_URL || process.env.NEXT_PUBLIC_AUTOMATION_BACKEND_URL || "";
-  return baseUrl.replace(/\/$/, "");
+const DEFAULT_AI_UGC_BASE_URL = "http://localhost:3000";
+
+function getAiUgcBaseUrl(): string {
+  return (process.env.AI_UGC_BASE_URL || process.env.NEXT_PUBLIC_AI_UGC_BASE_URL || DEFAULT_AI_UGC_BASE_URL).replace(/\/$/, "");
 }
 
-async function proxyAutomationBackendRequest(request: NextRequest, context: RouteContext) {
-  const baseUrl = getAutomationBackendBaseUrl();
-  const accessToken = process.env.AUTOMATION_BACKEND_ACCESS_TOKEN || "";
-
-  if (!baseUrl) {
-    return NextResponse.json({ detail: "AUTOMATION_BACKEND_URL is not configured." }, { status: 500 });
-  }
-
-  if (!accessToken) {
-    return NextResponse.json({ detail: "AUTOMATION_BACKEND_ACCESS_TOKEN is not configured." }, { status: 500 });
-  }
-
+async function proxyAiUgcRequest(request: NextRequest, context: RouteContext) {
   const params = await context.params;
   const path = params.path?.join("/") || "";
   const sourceUrl = new URL(request.url);
-  const targetUrl = new URL(`/${path}${sourceUrl.search}`, baseUrl);
+  const targetUrl = new URL(`/api/${path}${sourceUrl.search}`, getAiUgcBaseUrl());
 
   const headers = new Headers();
   const contentType = request.headers.get("content-type");
+  const cookie = request.headers.get("cookie");
   const accept = request.headers.get("accept");
 
   if (contentType) headers.set("content-type", contentType);
+  if (cookie) headers.set("cookie", cookie);
   if (accept) headers.set("accept", accept);
-  headers.set("authorization", `Bearer ${accessToken}`);
 
   const init: RequestInit = {
     method: request.method,
@@ -59,17 +50,17 @@ async function proxyAutomationBackendRequest(request: NextRequest, context: Rout
 }
 
 export async function GET(request: NextRequest, context: RouteContext) {
-  return proxyAutomationBackendRequest(request, context);
+  return proxyAiUgcRequest(request, context);
 }
 
 export async function POST(request: NextRequest, context: RouteContext) {
-  return proxyAutomationBackendRequest(request, context);
+  return proxyAiUgcRequest(request, context);
 }
 
 export async function PATCH(request: NextRequest, context: RouteContext) {
-  return proxyAutomationBackendRequest(request, context);
+  return proxyAiUgcRequest(request, context);
 }
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
-  return proxyAutomationBackendRequest(request, context);
+  return proxyAiUgcRequest(request, context);
 }

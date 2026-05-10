@@ -4,7 +4,12 @@
 __pycache__/
 .pytest_cache/
 *.pyc
-ai-ugc/
+.DS_Store
+node_modules/
+.next/
+dist/
+build/
+*.tsbuildinfo
 
 data/*
 !data/.gitkeep
@@ -15,4 +20,4 @@ data/*
 !data/outputs/
 !data/outputs/.gitkeep
 
-ai-ugc/*
+/ai-ugc/*
